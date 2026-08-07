@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Josh Carrell — Data Scientist &amp; Geospatial Analyst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #24221d;
+    --panel: #2c2921;
+    --panel-alt: #322e25;
+    --ink: #ece4d2;
+    --ink-dim: #a89c83;
+    --ink-faint: #766b56;
+    --moss: #6b7658;
+    --clay: #9c6a45;
+    --blaze: #d9541f;
+    --blaze-dim: #a5431c;
+    --line: #423c30;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    background-image:
+      radial-gradient(ellipse at top left, rgba(107,118,88,0.08), transparent 55%),
+      radial-gradient(ellipse at bottom right, rgba(156,106,69,0.06), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  a{ color: inherit; }
+
+  .topo{
+    position: absolute; inset: 0; z-index: 0; opacity: 0.16; pointer-events: none;
+  }
+
+  header{
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(36,34,29,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav-wrap{
+    max-width: 1080px; margin: 0 auto; padding: 18px 28px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  }
+
+  .brand{
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--font-display); font-weight: 700; font-size: 1.05rem;
+    letter-spacing: 0.01em; white-space: nowrap;
+  }
+
+  .brand .blaze-mark{ width: 8px; height: 22px; background: var(--blaze); border-radius: 1px; flex-shrink: 0; }
+
+  nav{ display: flex; gap: 2px; flex-wrap: wrap; }
+
+  .tab-btn{
+    background: none; border: none; font-family: var(--font-mono);
+    font-size: 0.75rem; letter-spacing: 0.03em; text-transform: uppercase;
+    color: var(--ink-dim); padding: 8px 10px; cursor: pointer;
+    position: relative; transition: color 0.15s ease; white-space: nowrap;
+  }
+
+  .tab-btn:hover{ color: var(--ink); }
+  .tab-btn.active{ color: var(--ink); }
+  .tab-btn.active::after{
+    content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px;
+    height: 3px; background: var(--blaze); border-radius: 1px;
+  }
+  .tab-btn:focus-visible{ outline: 2px solid var(--blaze); outline-offset: 2px; }
+
+  main{ max-width: 1080px; margin: 0 auto; padding: 0 28px 90px; position: relative; }
+
+  .panel{ display: none; }
+  .panel.active{ display: block; animation: fade 0.35s ease; }
+  @keyframes fade{ from{ opacity: 0; transform: translateY(6px); } to{ opacity: 1; transform: translateY(0); } }
+
+  .hero{
+    position: relative; padding: 72px 0 56px; border-bottom: 1px solid var(--line);
+    margin-bottom: 48px; overflow: hidden;
+  }
+  .hero-inner{ position: relative; z-index: 1; max-width: 780px; }
+
+  .eyebrow{
+    font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--blaze); display: flex; align-items: center;
+    gap: 10px; margin-bottom: 18px;
+  }
+  .eyebrow::before{ content: ""; width: 26px; height: 3px; background: var(--blaze); display: inline-block; }
+
+  h1{
+    font-family: var(--font-display); font-weight: 700; font-size: clamp(2.1rem, 5vw, 3rem);
+    line-height: 1.08; letter-spacing: -0.01em; margin-bottom: 20px;
+    text-wrap: balance;
+  }
+
+  .hero-body{ display: flex; align-items: flex-start; gap: 22px; margin-bottom: 30px; }
+
+  .headshot{
+    width: 140px; height: 140px; border-radius: 8px; object-fit: cover;
+    border: 2px solid var(--blaze); flex-shrink: 0;
+  }
+
+  .hero p.lede{ font-size: 1.05rem; color: var(--ink-dim); max-width: 54ch; margin: 0; }
+
+  .hero-links{ display: flex; flex-wrap: wrap; gap: 12px; }
+
+  .pill-link{
+    font-family: var(--font-mono); font-size: 0.82rem; display: inline-flex; align-items: center;
+    gap: 8px; padding: 9px 16px; border: 1px solid var(--line); border-radius: 3px;
+    color: var(--ink); text-decoration: none; transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .pill-link:hover{ border-color: var(--blaze); background: rgba(217,84,31,0.08); }
+  .pill-link.primary{ background: var(--blaze); border-color: var(--blaze); color: #24221d; font-weight: 500; }
+  .pill-link.primary:hover{ background: var(--blaze-dim); }
+
+  .section-head{ display: flex; align-items: baseline; gap: 14px; margin: 8px 0 8px; }
+  .section-head .num{ font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-faint); }
+  .section-head h2{ font-family: var(--font-display); font-weight: 600; font-size: 1.5rem; }
+
+  .section-sub{ color: var(--ink-dim); font-size: 0.95rem; margin: 0 0 32px; max-width: 60ch; }
+
+  .card-grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 8px; }
+
+  .card{
+    background: var(--panel); border: 1px solid var(--line); border-radius: 4px;
+    padding: 20px 22px; position: relative; transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .card:hover{ border-color: var(--clay); transform: translateY(-2px); }
+  .card::before{
+    content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px;
+    background: var(--moss); border-radius: 0 2px 2px 0;
+  }
+  .card.blazed::before{ background: var(--blaze); }
+  .card.placeholder{ border-style: dashed; opacity: 0.7; }
+  .card.placeholder::before{ background: var(--ink-faint); }
+
+  .card-topic{
+    font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-faint); margin-bottom: 10px;
+  }
+  .card h3{ font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; margin-bottom: 8px; line-height: 1.3; }
+  .card p{ color: var(--ink-dim); font-size: 0.9rem; margin-bottom: 14px; }
+  .card a.go{ font-family: var(--font-mono); font-size: 0.78rem; color: var(--blaze); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+  .card a.go:hover{ text-decoration: underline; }
+
+  .feature{
+    background: var(--panel-alt); border: 1px solid var(--line); border-radius: 4px;
+    padding: 28px 30px; margin-bottom: 20px;
+  }
+  .feature h3{ font-family: var(--font-display); font-weight: 600; font-size: 1.2rem; margin-bottom: 10px; }
+  .feature p{ color: var(--ink-dim); font-size: 0.95rem; margin-bottom: 16px; max-width: 62ch; }
+
+  /* Experience / resume specific */
+  .resume-toolbar{
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+    gap: 16px; margin-bottom: 36px; padding-bottom: 24px; border-bottom: 1px solid var(--line);
+  }
+
+  .timeline{ position: relative; padding-left: 28px; margin-bottom: 40px; }
+  .timeline::before{ content: ""; position: absolute; left: 6px; top: 4px; bottom: 4px; width: 2px; background: var(--line); }
+
+  .timeline-item{ position: relative; padding-bottom: 30px; }
+  .timeline-item::before{
+    content: ""; position: absolute; left: -28px; top: 4px; width: 10px; height: 10px;
+    border-radius: 50%; background: var(--blaze); border: 2px solid var(--bg);
+  }
+  .timeline-item .role-date{ font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-faint); margin-bottom: 6px; }
+  .timeline-item h3{ font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; margin-bottom: 4px; }
+  .timeline-item .org{ color: var(--clay); font-size: 0.9rem; margin-bottom: 8px; }
+  .timeline-item p{ color: var(--ink-dim); font-size: 0.9rem; max-width: 62ch; }
+
+  .empty-note{
+    font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink-faint);
+    border: 1px dashed var(--line); border-radius: 4px; padding: 18px 20px; max-width: 62ch;
+  }
+
+  .sub-grid{
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;
+  }
+  .feature.compact{ padding: 22px 24px; margin-bottom: 0; }
+  .feature.compact h3{ font-size: 1.05rem; }
+  .feature.compact p{ font-size: 0.88rem; }
+
+  .edu-row{
+    display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 0.9rem;
+  }
+  .edu-row:last-child{ border-bottom: none; padding-bottom: 0; }
+  .edu-row span:first-child{ font-family: var(--font-display); font-weight: 600; }
+  .edu-row .edu-date{ color: var(--ink-dim); font-family: var(--font-mono); font-size: 0.78rem; }
+
+  .skills-grid{
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-bottom: 8px;
+  }
+  .skills-label{
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--blaze); margin-bottom: 12px;
+  }
+  .tag-group{ display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag{
+    font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-dim);
+    border: 1px solid var(--line); border-radius: 3px; padding: 5px 10px; background: var(--panel);
+  }
+
+  @media (max-width: 700px){
+    .sub-grid{ grid-template-columns: 1fr; }
+  }
+
+  footer{
+    text-align: center; padding: 40px 28px 60px; color: var(--ink-faint);
+    font-family: var(--font-mono); font-size: 0.78rem; border-top: 1px solid var(--line); margin-top: 40px;
+  }
+
+  @media (max-width: 640px){
+    .nav-wrap{ flex-direction: column; align-items: flex-start; gap: 14px; }
+    .tab-btn{ padding: 6px 7px; font-size: 0.68rem; }
+    .hero{ padding: 48px 0 40px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-wrap">
+    <div class="brand"><span class="blaze-mark"></span>JOSH CARRELL</div>
+    <nav id="tabnav">
+      <button class="tab-btn active" data-tab="home">Home</button>
+      <button class="tab-btn" data-tab="portfolio">Portfolio</button>
+      <button class="tab-btn" data-tab="experience">Experience</button>
+      <button class="tab-btn" data-tab="research">Research</button>
+      <button class="tab-btn" data-tab="tutorials">Tutorials</button>
+      <button class="tab-btn" data-tab="fieldnotes">Field Notes</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HOME -->
+  <section class="panel active" id="home">
+    <div class="hero">
+      <svg class="topo" viewBox="0 0 1000 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M-20,340 Q150,300 300,340 T600,330 T1020,350" stroke="#a89c83" stroke-width="1.2" fill="none"/>
+        <path d="M-20,290 Q180,240 340,290 T650,270 T1020,295" stroke="#a89c83" stroke-width="1.2" fill="none"/>
+        <path d="M-20,240 Q200,180 380,235 T700,210 T1020,240" stroke="#a89c83" stroke-width="1.2" fill="none"/>
+        <path d="M-20,185 Q220,120 420,180 T750,150 T1020,185" stroke="#a89c83" stroke-width="1.2" fill="none"/>
+        <path d="M-20,120 Q260,50 460,115 T800,80 T1020,120" stroke="#a89c83" stroke-width="1.2" fill="none"/>
+      </svg>
+      <div class="hero-inner">
+        <div class="eyebrow">Data Scientist · Data Engineer · GISP · Conservation Biogeographer</div>
+        <h1>I turn your messy data into ETL pipelines, spatial and statistical models, and decisions people can act&nbsp;on.</h1>
+        <div class="hero-body">
+          <p class="lede">I build the pipelines, models, and visualizations that turn raw data into decisions, using R, Python, GIS, and whatever the problem calls for. Ecology, geospatial work, and sustainability are where I show up most, but the methods aren't picky about the subject.</p>
+          <img class="headshot" src="1760019377665.jpg" alt="Josh Carrell">
+        </div>
+        <div class="hero-links">
+          <a class="pill-link primary" href="https://github.com/RandomForestz" target="_blank" rel="noopener">GitHub ↗</a>
+          <a class="pill-link" href="https://www.linkedin.com/in/joshdcarrell/" target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a class="pill-link" href="#" onclick="showTab('experience'); return false;">Resume ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head"><span class="num">00</span><h2>Start here</h2></div>
+    <p class="section-sub">A field guide to what's across these tabs.</p>
+    <div class="card-grid">
+      <div class="card blazed">
+        <div class="card-topic">Portfolio</div>
+        <h3>Major projects &amp; tools</h3>
+        <p>Data science, data engineering, and tooling work, built to show what I can do on the job.</p>
+        <a class="go" href="#" onclick="showTab('portfolio'); return false;">Browse →</a>
+      </div>
+      <div class="card">
+        <div class="card-topic">Experience</div>
+        <h3>Resume</h3>
+        <p>Roles, education, and skills — with a PDF download if you want to keep a copy.</p>
+        <a class="go" href="#" onclick="showTab('experience'); return false;">View →</a>
+      </div>
+      <div class="card">
+        <div class="card-topic">Research</div>
+        <h3>Peer-reviewed &amp; applied work</h3>
+        <p>Conservation planning, climate impacts on tree habitat, and an award-winning map.</p>
+        <a class="go" href="#" onclick="showTab('research'); return false;">Browse →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTFOLIO (major DS/DE projects + tools, for employers) -->
+  <section class="panel" id="portfolio">
+    <div class="section-head"><span class="num">01</span><h2>Portfolio</h2></div>
+    <p class="section-sub">Major data science, data engineering, and tooling work — the pieces that best show what I can do for an employer, distinct from side experiments in Field Notes.</p>
+    <div class="card-grid">
+      <div class="card blazed">
+        <div class="card-topic">R Package</div>
+        <h3>slashR</h3>
+        <p>Fixes Windows file path backslashes so copying paths into R stops breaking your scripts.</p>
+        <a class="go" href="https://github.com/RandomForestz/slashR" target="_blank" rel="noopener">View repo →</a>
+      </div>
+      <div class="card">
+        <div class="card-topic">Python / ArcGIS Pro</div>
+        <h3>Niche Toolkit</h3>
+        <p>Geoprocessing toolkit for ecological niche similarity analysis, built for ArcGIS Pro integration.</p>
+        <a class="go" href="https://github.com/RandomForestz/NicheToolkit" target="_blank" rel="noopener">View repo →</a>
+      </div>
+      <div class="card placeholder">
+        <div class="card-topic">Add project</div>
+        <h3>Slot for a major project</h3>
+        <p>Drop in a title, one-line description, and a repo or write-up link. Repeat for each flagship piece.</p>
+        <span class="go">Waiting on details</span>
+      </div>
+      <div class="card placeholder">
+        <div class="card-topic">Add project</div>
+        <h3>Slot for a major project</h3>
+        <p>Drop in a title, one-line description, and a repo or write-up link. Repeat for each flagship piece.</p>
+        <span class="go">Waiting on details</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE (resume) -->
+  <section class="panel" id="experience">
+    <div class="section-head"><span class="num">02</span><h2>Experience</h2></div>
+    <div class="resume-toolbar">
+      <p class="section-sub" style="margin:0;">Roles, education, and skills. Full detail in the PDF.</p>
+      <a class="pill-link primary" href="resume.pdf" download>Download PDF ↓</a>
+    </div>
+
+    <div class="timeline" id="experience-timeline">
+      <div class="timeline-item">
+        <div class="role-date">03/2026 – Current</div>
+        <h3>Data Scientist II</h3>
+        <div class="org">E Source · Data Science &amp; Vegetation Modeling Group</div>
+        <p>Modeling vegetation risk on infrastructure, utility outages, and grid resilience — built on AWS and Databricks.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="role-date">06/2025 – 03/2026</div>
+        <h3>Geospatial Analyst &amp; Statistical Ecologist</h3>
+        <div class="org">Headwaters · Platte River Recovery Implementation Program</div>
+        <p>Built a production ArcGIS Pro Python toolbox for species distribution modeling, cutting analytical turnaround by 75% across 20+ statistical models. Standardized version control and QA/QC across all spatial products.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="role-date">06/2022 – 05/2025</div>
+        <h3>Graduate Researcher</h3>
+        <div class="org">Colorado State University</div>
+        <p>Designed reproducible raster workflows (ArcGIS Pro, Python, R) for multi-year Bayesian regression; audited spatial algorithms across the group's modeling pipeline for bias and inefficiency.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="role-date">08/2024 – 03/2025</div>
+        <h3>Geospatial Product Engineer <span style="color:var(--ink-faint); font-weight:400;">(Federal Contractor)</span></h3>
+        <div class="org">USGS · Fort Collins Science Center</div>
+        <p>Built and deployed a production remote sensing application in Google Earth Engine, fusing multi-sensor satellite imagery into a high-performance dashboard for federal decision-makers.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="role-date">05/2024 – 08/2024</div>
+        <h3>Geospatial Analyst <span style="color:var(--ink-faint); font-weight:400;">(Contractor)</span></h3>
+        <div class="org">Analytical Mechanics Associates · NASA</div>
+        <p>Engineered a Random Forest ML pipeline in Earth Engine at 96% accuracy over terabyte-scale satellite imagery; built 5 data APIs and dashboards for federal and NGO stakeholders.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="role-date">01/2020 – 05/2022</div>
+        <h3>Graduate Research Assistant</h3>
+        <div class="org">Utah State University · USGS Utah Cooperative Fish &amp; Wildlife Research Unit</div>
+        <p>Built and validated 150+ spatial suitability and predictive raster models (ML, GLM, Bayesian) across 30+ species to support conservation decisions for state and federal partners.</p>
+      </div>
+    </div>
+
+    <div class="sub-grid">
+      <div class="feature compact">
+        <div class="card-topic">Education</div>
+        <div class="edu-row"><span>Ph.D. Candidate, Geoscience</span><span class="edu-date">Colorado State University · Expected 2026</span></div>
+        <div class="edu-row"><span>M.S., Ecology</span><span class="edu-date">Utah State University · 2022</span></div>
+        <div class="edu-row"><span>B.S.</span><span class="edu-date">Brigham Young University–Idaho · 2019</span></div>
+      </div>
+      <div class="feature compact">
+        <div class="card-topic">Certification</div>
+        <h3 style="margin-bottom:4px;">GISP</h3>
+        <p style="margin-bottom:0;">Geographic Information Systems Professional · GIS Certification Institute (GISCI)<br>Credential #162067 · 2025–2028</p>
+      </div>
+    </div>
+
+    <div class="feature compact" style="margin-bottom:20px;">
+      <div class="card-topic">Beyond the day job</div>
+      <p style="margin-bottom:6px;"><strong style="color:var(--ink);">Teaching:</strong> Instructor at Utah State University &amp; Colorado State University (graduate geospatial analysis: R, SDM, remote sensing), 2022–2024. Teaching Assistant at USU &amp; BYU-Idaho (GIS &amp; spatial analysis), 2017–2022.</p>
+      <p style="margin-bottom:0;"><strong style="color:var(--ink);">Service:</strong> Geospatial Mentor, Geospatial Professional Network (formerly URISA), 2025–Present. Environmental Sustainability Leader, CSU School of Global Environmental Sustainability, 2023–2024. Climate Adaptation Science Trainee, NSF / USU Ecology Center, 2020–2022.</p>
+    </div>
+
+    <div class="section-head" style="margin-top:0;"><h2 style="font-size:1.1rem;">Expertise</h2></div>
+    <div class="skills-grid">
+      <div>
+        <div class="skills-label">Data Engineering &amp; Infrastructure</div>
+        <div class="tag-group">
+          <span class="tag">Python (Pandas, GeoPandas, ArcPy, GDAL)</span>
+          <span class="tag">R (terra, sf, tidyverse)</span>
+          <span class="tag">SQL (PostgreSQL, PostGIS)</span>
+          <span class="tag">ETL/ELT design</span>
+          <span class="tag">AWS (S3, Lambda)</span>
+          <span class="tag">Databricks</span>
+          <span class="tag">Git · GitHub Actions</span>
+        </div>
+      </div>
+      <div>
+        <div class="skills-label">Data Science &amp; Machine Learning</div>
+        <div class="tag-group">
+          <span class="tag">Bayesian inference</span>
+          <span class="tag">GLM / GAM</span>
+          <span class="tag">Spatial statistics</span>
+          <span class="tag">Random Forest &amp; gradient boosting</span>
+          <span class="tag">Species distribution modeling</span>
+          <span class="tag">Kriging / interpolation</span>
+          <span class="tag">Remote sensing analysis</span>
+        </div>
+      </div>
+      <div>
+        <div class="skills-label">Tools &amp; Visualization</div>
+        <div class="tag-group">
+          <span class="tag">ArcGIS Pro</span>
+          <span class="tag">QGIS</span>
+          <span class="tag">Google Earth Engine</span>
+          <span class="tag">Power BI</span>
+          <span class="tag">Plotly / Dash / RShiny</span>
+          <span class="tag">Forest Vegetation Simulator</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-sub" style="margin-top:28px;">Selected publications live in the <a href="#" onclick="showTab('research'); return false;" style="color:var(--blaze); text-decoration:underline;">Research</a> tab.</p>
+  </section>
+
+  <!-- RESEARCH (was Publications) -->
+  <section class="panel" id="research">
+    <div class="section-head"><span class="num">03</span><h2>Research</h2></div>
+    <p class="section-sub">Papers, articles, and maps — mostly on species conservation, climate impacts, and extractive-industry tradeoffs.</p>
+    <div class="card-grid">
+      <div class="card blazed">
+        <div class="card-topic">Publication</div>
+        <h3>Balancing Species Conservation &amp; Extractive Industries</h3>
+        <p>Species distribution modeling applied to conservation planning around extractive land use.</p>
+        <a class="go" href="https://github.com/RandomForestz/Spatial-Ecology-Portfolio/blob/main/land-11-02012-v2-1.pdf" target="_blank" rel="noopener">Read PDF →</a>
+      </div>
+      <div class="card blazed">
+        <div class="card-topic">Publication</div>
+        <h3>Madrean Pine-Oak Forests &amp; Climate</h3>
+        <p>Modeling climate change impacts on tree habitat suitability across the Madrean Sky Islands.</p>
+        <a class="go" href="https://github.com/RandomForestz/Spatial-Ecology-Portfolio/blob/main/fevo-11-1086062-1.pdf" target="_blank" rel="noopener">Read PDF →</a>
+      </div>
+      <div class="card">
+        <div class="card-topic">Article</div>
+        <h3>Conservation Corner — Aquilegia Magazine</h3>
+        <p>Rare plant conservation weighed against extractive industry pressures.</p>
+        <a class="go" href="https://github.com/RandomForestz/Spatial-Ecology-Portfolio/blob/main/Aquilegia_2023.pdf" target="_blank" rel="noopener">Read PDF →</a>
+      </div>
+      <div class="card">
+        <div class="card-topic">Map — 1st Place, GIS Colorado 2024</div>
+        <h3>Southern Rockies Forest Disturbance</h3>
+        <p>Award-winning cartographic submission mapping forest disturbance across the Southern Rockies.</p>
+        <a class="go" href="https://github.com/RandomForestz/Spatial-Ecology-Portfolio/blob/main/southernrockiesmap.pdf" target="_blank" rel="noopener">View map →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TUTORIALS -->
+  <section class="panel" id="tutorials">
+    <div class="section-head"><span class="num">04</span><h2>Tutorials</h2></div>
+    <p class="section-sub">Walkthroughs on modeling and spatial analysis, written for people learning R and GIS methods.</p>
+    <div class="card-grid">
+      <div class="card blazed">
+        <div class="card-topic">Tutorial</div>
+        <h3>Mapping Burn Severity in R</h3>
+        <p>An introduction to the Normalized Burn Ratio for mapping fire severity.</p>
+        <a class="go" href="https://github.com/RandomForestz/Spatial-Ecology-Portfolio/blob/main/Burn-ratio.pdf" target="_blank" rel="noopener">Read →</a>
+      </div>
+      <div class="card">
+        <div class="card-topic">Tutorial</div>
+        <h3>Kernel Density &amp; Point-Pattern Analysis</h3>
+        <p>An introduction to kernel density estimation in R for point-pattern data.</p>
+        <a class="go" href="https://github.com/RandomForestz/Spatial-Ecology-Portfolio/blob/main/Point_Pattern_Analysis.pdf" target="_blank" rel="noopener">Read →</a>
+      </div>
+      <div class="card">
+        <div class="card-topic">Tutorial</div>
+        <h3>Species Distribution Modeling with GLMs</h3>
+        <p>Modeling habitat suitability in R using generalized linear models.</p>
+        <a class="go" href="https://rpubs.com/GeospatialEcologist/SDM" target="_blank" rel="noopener">Read →</a>
+      </div>
+      <div class="card">
+        <div class="card-topic">Tutorial</div>
+        <h3>Raster &amp; Vector Analysis in R</h3>
+        <p>Two-part introduction to raster and vector spatial analysis fundamentals.</p>
+        <a class="go" href="https://rpubs.com/GeospatialEcologist/SpatialRaster" target="_blank" rel="noopener">Raster →</a>
+        &nbsp;·&nbsp;
+        <a class="go" href="https://rpubs.com/GeospatialEcologist/SpatialVector" target="_blank" rel="noopener">Vector →</a>
+      </div>
+      <div class="card">
+        <div class="card-topic">Modeling</div>
+        <h3>GLMs vs. GAMs: Predictive Performance</h3>
+        <p>Comparing generalized linear and additive models for soil drivers of plant distribution.</p>
+        <a class="go" href="https://rpubs.com/GeospatialEcologist/GLMGAM" target="_blank" rel="noopener">Read →</a>
+      </div>
+      <div class="card">
+        <div class="card-topic">Modeling</div>
+        <h3>Camera Traps &amp; Predation Risk</h3>
+        <p>Examining how camera trap monitoring influences predation risk for nesting birds.</p>
+        <a class="go" href="https://rpubs.com/GeospatialEcologist/CameraMonitoring" target="_blank" rel="noopener">Read →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIELD NOTES (blogs + misc) -->
+  <section class="panel" id="fieldnotes">
+    <div class="section-head"><span class="num">05</span><h2>Field Notes</h2></div>
+    <p class="section-sub">Blog posts and misc pieces that don't fit neatly into Research or Portfolio.</p>
+    <div class="card-grid">
+      <div class="card blazed">
+        <div class="card-topic">ArcGIS Style</div>
+        <h3>The Geospatial Dead</h3>
+        <p>An ArcGIS .stylx file with 16 color palettes pulled from Grateful Dead album covers and logos.</p>
+        <a class="go" href="https://github.com/RandomForestz/TheGeospatialDead" target="_blank" rel="noopener">View repo →</a>
+      </div>
+      <div class="card">
+        <div class="card-topic">Visualization</div>
+        <h3>Visualizing Mixed Effects Models</h3>
+        <p>Sometimes a GIF is what you need to actually see hierarchical modeling at work.</p>
+        <a class="go" href="https://github.com/RandomForestz/Geospatial-Analysis-for-Natural-Resources/blob/main/mixed%20effects%20models.gif" target="_blank" rel="noopener">View GIF →</a>
+      </div>
+      <div class="card">
+        <div class="card-topic">Visualization</div>
+        <h3>Visualizing Linear Model Residuals</h3>
+        <p>Diagnosing residuals, animated — because static plots don't always tell the story.</p>
+        <a class="go" href="https://github.com/RandomForestz/Geospatial-Analysis-for-Natural-Resources/blob/main/Diagnosingresiduals-ezgif.com-speed%20(2).gif" target="_blank" rel="noopener">View GIF →</a>
+      </div>
+      <div class="card placeholder">
+        <div class="card-topic">Blog</div>
+        <h3>Slot for a blog post</h3>
+        <p>First post goes here once you've got one written.</p>
+        <span class="go">Waiting on details</span>
+      </div>
+    </div>
+  </section>
+
+
+</main>
+
+<footer>
+  Built &amp; hosted on GitHub Pages · RandomForestz / RandomForestz.github.io
+</footer>
+
+<script>
+  function showTab(id){
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelector('.tab-btn[data-tab="' + id + '"]').classList.add('active');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    history.replaceState(null, '', '#' + id);
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => showTab(btn.dataset.tab));
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && document.getElementById(hash)) showTab(hash);
+  });
+</script>
+
+</body>
+</html>
